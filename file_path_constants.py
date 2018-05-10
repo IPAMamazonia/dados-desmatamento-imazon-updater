@@ -1,0 +1,2 @@
+EXTRACTED_SHAPEFILES_PATH_FOLDER = './shapeFiles'
+DATA_CONSTANTS_JSON_FILE_NAME = 'data_constants.json'
