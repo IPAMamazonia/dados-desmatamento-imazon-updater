@@ -1,5 +1,0 @@
-DB_NAME = ''
-HOST = ''
-USER = ''
-PW = ''
-TERMINAL_COMMAND = 'cd {} && shp2pgsql -s 4326 {} imazon_sad_desmatamento | PGPASSWORD={} psql -h {} -U postgres -d {}'
