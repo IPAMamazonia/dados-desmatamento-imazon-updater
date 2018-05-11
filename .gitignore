@@ -1,0 +1,8 @@
+configs.py
+lib/
+lib64
+shapeFiles/
+bin/
+.vscode/
+include/
+*.pyc
