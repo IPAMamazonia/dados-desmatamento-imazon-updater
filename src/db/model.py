@@ -1,5 +1,6 @@
 import psycopg2
-from configs import DB_NAME, PW, HOST, USER
+from configs import DB_NAME, PW, HOST, USER, TABLE_NAME
+
 
 class DB_Model:
 
@@ -10,8 +11,7 @@ class DB_Model:
 
     def calculate(self):
         print 'Calculando...'
-        self.cur.execute(
-            '''
+        self.cur.execute('''
             INSERT INTO alerta_desmate_sad_test (id_ti, distance, area_ha, lat, lng, mes, ano, date)
 (SELECT * FROM
     (
@@ -26,30 +26,41 @@ class DB_Model:
 	   (ano || '-' || mes || '-15')::date
 	 FROM 
 	   terras_indigenas as t,
-	   imazon_sad_desmatamento as d
+	   {} as d
 	 --WHERE t.id = 4068
     ) AS foo
 WHERE distance <= 10
 ORDER BY distance)
-        '''
-        )
+        '''.format(TABLE_NAME))
         self.con.commit()
         print "Calculo concluido"
 
+    def check_if_table_exists(self):
+
+        self.cur.execute('''
+        SELECT COUNT(*) FROM information_schema.tables
+WHERE table_name = {}
+'''.format(TABLE_NAME))
+
+        exists = self.cur.fetchone()[0][0]
+
+        return exists
+
+
     def drop_table(self):
         self.cur.execute('''
-        DROP TABLE imazon_sad_desmatamento;
-        '''
-        )  
+        DROP TABLE {};
+        '''.format(TABLE_NAME))
         self.con.commit()
         print "Table dropada"
     def close_conn(self):
         self.con.close()
-        
+
     # def select(self):
     #     self.cur.execute('select * from imazon_sad_desmatamento')
     #     print self.cur.fetchall()
     def database_calculate_and_drop_table(self):
+
         self.calculate()
         self.drop_table()
         self.close_conn()
