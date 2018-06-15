@@ -8,6 +8,7 @@ from utils.json_wr  import *
 from subprocess import call
 from utils.file_path_constants import EXTRACTED_SHAPEFILES_PATH_FOLDER
 from db.configs import *
+from utils.ipam_slack_notifier import SlackBOT
 from db.model import DB_Model
 
 def request_new_shapefiles(data):
@@ -36,12 +37,12 @@ def request_new_shapefiles(data):
         shp_file_name = generate_file_name(url.format( str(ano), str(zeroFill_mes if zeroFill_mes else mes )))
 
         if mdl.check_if_table_exists():
+            print 'oi'
             mdl.drop_table()
 
         call(
             TERMINAL_COMMAND.format(EXTRACTED_SHAPEFILES_PATH_FOLDER,
-                                    TABLE_NAME, shp_file_name, PW, HOST,
-                                    DB_NAME),
+                                    shp_file_name, TABLE_NAME),
             shell=True)
 
         write_data_on_json(
@@ -54,6 +55,22 @@ def request_new_shapefiles(data):
         mdl.database_calculate_and_drop_table()
 
         print url.format(str(ano), str(zeroFill_mes if zeroFill_mes else mes))
-        print resp.status_code
+
         return True
     return False
+
+
+try:
+    data = read_data_from_json()
+    is_new_shapefiles_generated = request_new_shapefiles(data)
+    
+    if (is_new_shapefiles_generated):
+        SlackBOT().send_msg(
+            '[+] Imazon shapefile atualizado :+1: ',
+            '#imazongeo')
+    else:
+        SlackBOT().send_msg('[-] Imazon shapefile NAO atualizado :+1: ', '#imazongeo')
+
+except:
+    SlackBOT().send_msg('[-] Ocorreu algum erro :-1: ', '#imazongeo')
+

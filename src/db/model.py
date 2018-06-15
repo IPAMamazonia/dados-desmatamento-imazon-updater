@@ -12,7 +12,7 @@ class DB_Model:
     def calculate(self):
         print 'Calculando...'
         self.cur.execute('''
-            INSERT INTO alerta_desmate_sad_test (id_ti, distance, area_ha, lat, lng, mes, ano, date)
+            INSERT INTO alerta_desmate_sad (id_ti, distance, area_ha, lat, lng, mes, ano, date)
 (SELECT * FROM
     (
 	 SELECT 
@@ -38,11 +38,15 @@ ORDER BY distance)
     def check_if_table_exists(self):
 
         self.cur.execute('''
-        SELECT COUNT(*) FROM information_schema.tables
-WHERE table_name = {}
+        SELECT EXISTS (
+   SELECT 1
+   FROM   information_schema.tables 
+   WHERE  table_schema = 'public'
+   AND    table_name = '{}'
+   );
 '''.format(TABLE_NAME))
 
-        exists = self.cur.fetchone()[0][0]
+        exists = self.cur.fetchone()[0]
 
         return exists
 
